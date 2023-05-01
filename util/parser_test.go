@@ -58,3 +58,15 @@ func TestParserPokemonSuccess(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkParser(b *testing.B) {
+	var pokemonResponse models.PokeApiPokemonResponse
+
+	err := ReadFileAndUnmarshall(&pokemonResponse, "../controller/samples/pokeapi_response.json")
+	assert.NoError(b, err)
+
+	for n := 0; n < b.N; n++ {
+		_, err = ParsePokemon(pokemonResponse)
+		assert.NoError(b, err)
+	}
+}
