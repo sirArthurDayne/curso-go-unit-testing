@@ -55,5 +55,6 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 		respondwithJSON(w, http.StatusInternalServerError, fmt.Sprintf("error found: %s", err.Error()))
 	}
 
+
 	respondwithJSON(w, http.StatusOK, parsedPokemon)
 }
