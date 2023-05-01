@@ -4,12 +4,18 @@ import (
 	"catching-pokemons/models"
 	"catching-pokemons/util"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+)
+
+var (
+	ErrPokemonNotFound   = errors.New("Pokemon Not Found")
+	ErrPokemonApiFailure = errors.New("unexpected response of Pokemon API found!")
 )
 
 // respondwithJSON write json response format
@@ -31,30 +37,47 @@ func respondwithJSON(w http.ResponseWriter, code int, payload interface{}) {
 func GetPokemon(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	request := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", id)
-
-	response, err := http.Get(request)
-	if err != nil {
-		log.Fatal(err)
+	apiPokemon, err := GetPokemonFromPokeApi(id)
+	if errors.Is(err, ErrPokemonNotFound) {
+		respondwithJSON(w, http.StatusNotFound, fmt.Sprintf("%s : %s", ErrPokemonNotFound.Error(), id))
 	}
-
-	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		respondwithJSON(w, http.StatusInternalServerError, fmt.Sprintf("error found while executing func GetPokemonFromPokeApi: %s", err.Error()))
 	}
-
-	var apiPokemon models.PokeApiPokemonResponse
-
-	err = json.Unmarshal(body, &apiPokemon)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	parsedPokemon, err := util.ParsePokemon(apiPokemon)
 	if err != nil {
 		respondwithJSON(w, http.StatusInternalServerError, fmt.Sprintf("error found: %s", err.Error()))
 	}
 
-
 	respondwithJSON(w, http.StatusOK, parsedPokemon)
+}
+
+func GetPokemonFromPokeApi(id string) (models.PokeApiPokemonResponse, error) {
+	request := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", id)
+
+	response, err := http.Get(request)
+	if err != nil {
+		return models.PokeApiPokemonResponse{}, err
+	}
+
+	if response.StatusCode == http.StatusNotFound {
+		return models.PokeApiPokemonResponse{}, ErrPokemonNotFound
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return models.PokeApiPokemonResponse{}, ErrPokemonApiFailure
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return models.PokeApiPokemonResponse{}, err
+	}
+
+	var apiPokemon models.PokeApiPokemonResponse
+	err = json.Unmarshal(body, &apiPokemon)
+	if err != nil {
+		return models.PokeApiPokemonResponse{}, err
+	}
+
+	return apiPokemon, nil
 }

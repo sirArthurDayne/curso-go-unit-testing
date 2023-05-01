@@ -1,11 +1,46 @@
 {
-    "Id": 1,
-    "Name": "bulbasaur",
-    "Type": "grass",
-    "Abilities": {
-        "Attack": 49,
-        "Defense": 49,
-        "Hp": 45,
-        "Speed": 45
+    "pikachu": {
+        "Id": 25,
+        "Name": "pikachu",
+        "Type": "electric",
+        "Abilities": {
+            "Attack": 55,
+            "Defense": 40,
+            "Hp": 35,
+            "Speed": 90
+        }
+    },
+    "bulbasaur": {
+        "Id": 1,
+        "Name": "bulbasaur",
+        "Type": "grass",
+        "Abilities": {
+            "Attack": 49,
+            "Defense": 49,
+            "Hp": 45,
+            "Speed": 45
+        }
+    },
+    "charmander": {
+        "Id": 4,
+        "Name": "charmander",
+        "Type": "fire",
+        "Abilities": {
+            "Attack": 52,
+            "Defense": 43,
+            "Hp": 39,
+            "Speed": 65
+        }
+    },
+    "squirtle": {
+        "Id": 7,
+        "Name": "squirtle",
+        "Type": "water",
+        "Abilities": {
+            "Attack": 48,
+            "Defense": 65,
+            "Hp": 44,
+            "Speed": 43
+        }
     }
 }

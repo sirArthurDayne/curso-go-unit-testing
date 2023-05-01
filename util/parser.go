@@ -2,7 +2,9 @@ package util
 
 import (
 	"catching-pokemons/models"
+	"encoding/json"
 	"errors"
+	"io/ioutil"
 )
 
 var (
@@ -11,6 +13,18 @@ var (
 	// ErrNotFoundPokemonTypeName occurs when we found type struct but no name
 	ErrNotFoundPokemonTypeName = errors.New("pokemon type name not found")
 )
+
+func ReadFileAndUnmarshall(data any, path string) error {
+	body, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func ParsePokemon(apiPokemon models.PokeApiPokemonResponse) (models.Pokemon, error) {
 	if len(apiPokemon.PokemonType) < 1 {
